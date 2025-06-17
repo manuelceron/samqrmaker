@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Open QR Maker</title>
+
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+
+  <style>
+    /* área de vista previa: bordes y centrado */
+    #preview-wrapper{
+      min-height:340px;           /* cabe un QR 300 px + margen */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px dashed #ced4da;
+      border-radius:.5rem;
+      background:#fff;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <!-- ──────────────────  NAVBAR  ────────────────── -->
+  <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+    <div class="container">
+      <span class="navbar-brand mb-0 h1">
+        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/qr-code-scan.svg" width="24" class="me-2">
+        Open QR Maker
+      </span>
+    </div>
+  </nav>
+
+  <!-- ──────────────────  MAIN  ────────────────── -->
+  <main class="container py-4">
+
+    <div class="row g-4">
+      <!-- ───────────  CONTROLES  ─────────── -->
+      <section class="col-lg-5 col-xl-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+
+            <!-- 1. Tipo de contenido -->
+            <h6 class="fw-bold mb-2">1&nbsp;·&nbsp;Tipo de contenido</h6>
+            <ul class="nav nav-pills mb-3" id="tab-type" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="link-tab" data-bs-toggle="pill"
+                        data-bs-target="#pane-link" type="button" role="tab">Enlace</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="text-tab" data-bs-toggle="pill"
+                        data-bs-target="#pane-text" type="button" role="tab">Texto</button>
+              </li>
+              <!-- añade más pestañas si quieres (vCard, Wi-Fi, etc.) -->
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-email">E-mail</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-call">Llamada</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-sms">SMS</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-whatsapp">WhatsApp</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-wifi">Wi-Fi</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-vcard">vCard</button></li>
+            </ul>
+
+            <div class="tab-content mb-4">
+              <!-- pane LINK -->
+              <div class="tab-pane fade show active" id="pane-link" role="tabpanel">
+                <input id="field-link" class="form-control"
+                       placeholder="https://ejemplo.com">
+              </div>
+              <!-- pane TEXT -->
+              <div class="tab-pane fade" id="pane-text" role="tabpanel">
+                <textarea id="field-text" class="form-control"
+                          rows="3" placeholder="Escribe tu mensaje…"></textarea>
+              </div>
+                <div class="tab-pane fade" id="pane-email">
+                    <input id="field-email" class="form-control mb-2" placeholder="correo@dominio.com">
+                    <input id="field-subject" class="form-control mb-2" placeholder="Asunto">
+                    <textarea id="field-body" class="form-control" rows="2" placeholder="Mensaje"></textarea>
+                </div>
+                <div class="tab-pane fade" id="pane-call">
+                    <input id="field-call" class="form-control" placeholder="+34123456789">
+                </div>
+                <div class="tab-pane fade" id="pane-sms">
+                    <input id="field-sms" class="form-control mb-2" placeholder="+34123456789">
+                    <textarea id="field-sms-msg" class="form-control" rows="2" placeholder="Mensaje (opcional)"></textarea>
+                </div>
+                <div class="tab-pane fade" id="pane-whatsapp">
+                    <input id="field-wa" class="form-control mb-2" placeholder="1234567890 (sin +)">
+                    <textarea id="field-wa-msg" class="form-control" rows="2" placeholder="Mensaje (opcional)"></textarea>
+                </div>
+                <div class="tab-pane fade" id="pane-wifi">
+                    <input id="field-ssid" class="form-control mb-2" placeholder="Nombre de red (SSID)">
+                    <input id="field-pass" class="form-control mb-2" placeholder="Contraseña Wi-Fi">
+                    <select id="field-encrypt" class="form-select">
+                    <option value="WPA">WPA/WPA2</option>
+                    <option value="WEP">WEP</option>
+                    <option value="">Sin contraseña</option>
+                    </select>
+                </div>
+                <div class="tab-pane fade" id="pane-vcard">
+                    <input id="field-vcard-name" class="form-control mb-2" placeholder="Nombre completo">
+                    <input id="field-vcard-org" class="form-control mb-2" placeholder="Empresa u organización">
+                    <input id="field-vcard-title" class="form-control mb-2" placeholder="Cargo o título">
+                    <input id="field-vcard-phone" class="form-control mb-2" placeholder="Teléfono">
+                    <input id="field-vcard-email" class="form-control mb-2" placeholder="Correo electrónico">
+                    <input id="field-vcard-url" class="form-control mb-2" placeholder="Sitio web">
+                </div>
+
+            </div>
+
+            <!-- 2. Diseño -->
+            <h6 class="fw-bold mb-2">2&nbsp;·&nbsp;Diseño</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small">Color</label>
+                <input id="color" type="color" class="form-control form-control-color" value="#000000">
+              </div>
+              <div class="col-6">
+                <label class="form-label small">Fondo</label>
+                <input id="bg" type="color" class="form-control form-control-color" value="#ffffff">
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label small">Logo opcional</label>
+              <input id="logo" type="file" class="form-control" accept="image/*">
+            </div>
+            <!-- 2.1 Forma de puntos y esquinas -->
+            <div class="mb-3">
+            <label class="form-label small">Forma de puntos</label>
+            <select id="shape-dots" class="form-select">
+                <option value="square" selected>Cuadrado</option>
+                <option value="dots">Puntos</option>
+                <option value="rounded">Redondeado</option>
+                <option value="extra-rounded">Extra redondeado</option>
+                <option value="classy">Elegante</option>
+                <option value="classy-rounded">Elegante redondeado</option>
+            </select>
+            </div>
+
+            <div class="mb-4">
+            <label class="form-label small">Forma de esquinas</label>
+            <select id="shape-corners" class="form-select">
+                <option value="square" selected>Cuadrado</option>
+                <option value="dot">Punto</option>
+                <option value="extra-rounded">Extra redondeado</option>
+                <option value="classy">Elegante</option>
+                <option value="classy-rounded">Elegante redondeado</option>
+            </select>
+            </div>
+
+            <!-- 3. Descargar -->
+            <div class="d-grid gap-2">
+            <button id="download-png" class="btn btn-success">
+                <i class="bi bi-download me-1"></i> Descargar PNG
+            </button>
+            <button id="download-svg" class="btn btn-outline-primary">
+                <i class="bi bi-filetype-svg me-1"></i> Descargar SVG
+            </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────  VISTA PREVIA  ─────────── -->
+      <section class="col-lg-7 col-xl-8">
+        <div id="preview-wrapper" class="shadow-sm bg-white">
+          <!-- el QR se inyecta aquí -->
+          <div id="preview"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ──────────────────  SCRIPTS  ────────────────── -->
+  <script type="module">
+    /* Cargando qr-code-styling vía CDN */
+    import QRCodeStyling from "https://cdn.jsdelivr.net/npm/qr-code-styling/+esm";
+
+    // ─────  Instancia base  ─────
+    const qr = new QRCodeStyling({
+      width: 300,
+      height: 300,
+      data: "https://ejemplo.com",
+      image: "",
+      dotsOptions:         { color:"#000", type:"square" },
+      backgroundOptions:   { color:"#fff" },
+      cornersSquareOptions:{ type:"square" }
+    });
+    qr.append(document.getElementById("preview"));
+
+    // Helper de acceso rápido
+    const $ = id => document.getElementById(id);
+
+    // ─────  Funciones  ─────
+    function currentData() {
+        const active = document.querySelector("#tab-type .nav-link.active").dataset.bsTarget;
+
+        switch (active) {
+            case "#pane-link":
+            return $("field-link").value.trim() || "https://example.com";
+
+            case "#pane-text":
+            return $("field-text").value.trim() || "Texto vacío";
+
+            case "#pane-email": {
+            const to = $("field-email").value.trim();
+            const subj = encodeURIComponent($("field-subject").value.trim());
+            const body = encodeURIComponent($("field-body").value.trim());
+            return `mailto:${to}?subject=${subj}&body=${body}`;
+            }
+
+            case "#pane-call":
+            return `tel:${$("field-call").value.trim()}`;
+
+            case "#pane-sms": {
+            const num = $("field-sms").value.trim();
+            const msg = encodeURIComponent($("field-sms-msg").value.trim());
+            return `sms:${num}${msg ? "?body=" + msg : ""}`;
+            }
+
+            case "#pane-whatsapp": {
+            const phone = $("field-wa").value.trim();
+            const msg = encodeURIComponent($("field-wa-msg").value.trim());
+            return `https://wa.me/${phone}${msg ? "?text=" + msg : ""}`;
+            }
+
+            case "#pane-wifi": {
+            const ssid = $("field-ssid").value.trim();
+            const pass = $("field-pass").value.trim();
+            const enc  = $("field-encrypt").value;
+            return `WIFI:T:${enc};S:${ssid};P:${pass};;`;
+            }
+            case "#pane-vcard": {
+                const name  = $("field-vcard-name").value.trim();
+                const org   = $("field-vcard-org").value.trim();
+                const title = $("field-vcard-title").value.trim();
+                const tel   = $("field-vcard-phone").value.trim();
+                const email = $("field-vcard-email").value.trim();
+                const url   = $("field-vcard-url").value.trim();
+
+                const vcard = [
+                    "BEGIN:VCARD",
+                    "VERSION:3.0",
+                    `FN:${name}`,
+                    `ORG:${org}`,
+                    `TITLE:${title}`,
+                    `TEL:${tel}`,
+                    `EMAIL:${email}`,
+                    `URL:${url}`,
+                    "END:VCARD"
+                ].filter(line => !line.endsWith(":")).join("\n"); // ignora campos vacíos
+
+                return vcard;
+            }
+
+
+            default:
+            return "https://example.com";
+        }
+    }
+
+    function refreshQR(){
+      qr.update({
+        data: currentData(),
+        dotsOptions:       { color: $("color").value },
+        backgroundOptions: { color: $("bg").value }
+      });
+    }
+
+    // ─────  Listeners  ─────
+    // Campos de texto
+    document.querySelectorAll("[id^='field-']").forEach(el => {
+        el.addEventListener("input", refreshQR);
+    });
+
+    // Color pickers
+    ["color","bg"].forEach(id => $(id).addEventListener("input", refreshQR));
+    // Pestañas de tipo de contenido
+    document.getElementById("tab-type").addEventListener("shown.bs.tab", refreshQR);
+    // Logo
+    $("logo").addEventListener("change", e=>{
+      const file = e.target.files[0];
+      qr.update({ image: file ? URL.createObjectURL(file) : "" });
+    });
+    // Actualizar forma de puntos y esquinas
+    ["shape-dots", "shape-corners"].forEach(id => {
+    $(id).addEventListener("change", () => {
+        qr.update({
+        dotsOptions: {
+            color: $("color").value,
+            type: $("shape-dots").value
+        },
+        cornersSquareOptions: {
+            type: $("shape-corners").value
+        }
+        });
+    });
+    });
+    document.getElementById("tab-type").addEventListener("shown.bs.tab", refreshQR);
+
+    
+    // Descargar PNG y SVG
+    $("download-png").onclick = () => qr.download({ name: "myQR", extension: "png" });
+    $("download-svg").onclick = () => qr.download({ name: "myQR", extension: "svg" });
+
+  </script>
+
+  <!-- Bootstrap Icons (opcional, para el icono de descarga) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</body>
+</html>
