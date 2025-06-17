@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Open QR Maker</title>
+  <title>Sam QR Maker</title>
 
   <!-- Bootstrap 5 CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -60,6 +60,9 @@
               <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-whatsapp">WhatsApp</button></li>
               <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-wifi">Wi-Fi</button></li>
               <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-vcard">vCard</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-event">Evento</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-eventics">Evento ICS</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pane-googlecal">Google Calendar</button></li>
             </ul>
 
             <div class="tab-content mb-4">
@@ -105,6 +108,28 @@
                     <input id="field-vcard-phone" class="form-control mb-2" placeholder="Teléfono">
                     <input id="field-vcard-email" class="form-control mb-2" placeholder="Correo electrónico">
                     <input id="field-vcard-url" class="form-control mb-2" placeholder="Sitio web">
+                </div>
+                <div class="tab-pane fade" id="pane-event">
+                    <input id="field-event-title" class="form-control mb-2" placeholder="Nombre del evento">
+                    <input id="field-event-start" type="datetime-local" class="form-control mb-2" placeholder="Inicio">
+                    <input id="field-event-end" type="datetime-local" class="form-control mb-2" placeholder="Fin">
+                    <input id="field-event-location" class="form-control mb-2" placeholder="Ubicación">
+                    <textarea id="field-event-desc" class="form-control" rows="2" placeholder="Descripción (opcional)"></textarea>
+                </div>
+                                
+                <div class="tab-pane fade" id="pane-eventics">
+                    <input id="field-eventics-title" class="form-control mb-2" placeholder="Nombre del evento">
+                    <input id="field-eventics-start" type="datetime-local" class="form-control mb-2" placeholder="Inicio">
+                    <input id="field-eventics-end" type="datetime-local" class="form-control mb-2" placeholder="Fin">
+                    <input id="field-eventics-location" class="form-control mb-2" placeholder="Ubicación">
+                    <textarea id="field-eventics-desc" class="form-control" rows="2" placeholder="Descripción (opcional)"></textarea>
+                </div>
+                <div class="tab-pane fade" id="pane-googlecal">
+                    <input id="field-eventgcal-title" class="form-control mb-2" placeholder="Nombre del evento">
+                    <input id="field-eventgcal-start" type="datetime-local" class="form-control mb-2">
+                    <input id="field-eventgcal-end" type="datetime-local" class="form-control mb-2">
+                    <input id="field-eventgcal-location" class="form-control mb-2" placeholder="Ubicación">
+                    <textarea id="field-eventgcal-desc" class="form-control" rows="2" placeholder="Descripción (opcional)"></textarea>
                 </div>
 
             </div>
@@ -255,6 +280,59 @@
 
                 return vcard;
             }
+            case "#pane-event": {
+            const title = $("field-event-title").value.trim();
+            const start = $("field-event-start").value.replace(/[-:]/g, "").replace("T", "") + "Z";
+            const end   = $("field-event-end").value.replace(/[-:]/g, "").replace("T", "") + "Z";
+            const loc   = $("field-event-location").value.trim();
+            const desc  = $("field-event-desc").value.trim();
+
+            const event = [
+                "BEGIN:VEVENT",
+                `SUMMARY:${title}`,
+                `DTSTART:${start}`,
+                `DTEND:${end}`,
+                `LOCATION:${loc}`,
+                `DESCRIPTION:${desc}`,
+                "END:VEVENT"
+            ].filter(line => !line.endsWith(":")).join("\n");
+
+            return event;
+            }
+            case "#pane-eventics": {
+                const title = $("field-eventics-title").value.trim();
+                const start = $("field-eventics-start").value.replace(/[-:]/g, "").replace("T", "") + "Z";
+                const end   = $("field-eventics-end").value.replace(/[-:]/g, "").replace("T", "") + "Z";
+                const loc   = $("field-eventics-location").value.trim();
+                const desc  = $("field-eventics-desc").value.trim();
+
+                const ical = [
+                    "BEGIN:VCALENDAR",
+                    "VERSION:2.0",
+                    "BEGIN:VEVENT",
+                    `SUMMARY:${title}`,
+                    `DTSTART:${start}`,
+                    `DTEND:${end}`,
+                    `LOCATION:${loc}`,
+                    `DESCRIPTION:${desc}`,
+                    "END:VEVENT",
+                    "END:VCALENDAR"
+                ].filter(line => !line.endsWith(":")).join("\n");
+
+                return ical;
+            }
+
+            case "#pane-googlecal": {
+                const start = $("field-eventgcal-start").value.replace("T", "").replace(/[-:]/g, "") + "Z";
+                const end   = $("field-eventgcal-end").value.replace("T", "").replace(/[-:]/g, "") + "Z";
+                const title = encodeURIComponent($("field-eventgcal-title").value.trim());
+                const loc   = encodeURIComponent($("field-eventgcal-location").value.trim());
+                const desc  = encodeURIComponent($("field-eventgcal-desc").value.trim());
+
+                return `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${desc}&location=${loc}`;
+            }
+
+
 
 
             default:
